@@ -1,0 +1,320 @@
+{
+  "$schema": "./repo.manifest.schema.json",
+  "version": 1,
+  "description": "Single source of truth for this monorepo. Every AI agent MUST read this file FIRST. The boundary tooling (eslint, scripts/check-scope.mjs, scripts/validate-manifest.mjs) and the agent docs all read this file, so docs and enforcement cannot drift. To change a boundary, edit here (scope: root) and re-run `pnpm run boundaries:check`.",
+  "conventions": {
+    "appsAreLeaves": "No app may import another app. Apps are terminal nodes in the dependency graph.",
+    "packagesCannotImportApps": "Shared packages may never import application code.",
+    "oneChangeOneScope": "A single change request is scoped to exactly ONE workspace. Editing a shared package or a root file is its own scope, never a silent ride-along on an app change.",
+    "publicSurfaceOnly": "Packages may only be imported through the paths declared in their package.json `exports`. Deep-importing internals (e.g. @repo/ui/src/...) is forbidden."
+  },
+  "workspaces": [
+    {
+      "id": "app:main",
+      "name": "main",
+      "kind": "app",
+      "path": "apps/main",
+      "port": 3000,
+      "owns": [
+        "apps/main/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:main",
+      "description": "Primary Next.js application."
+    },
+    {
+      "id": "app:console",
+      "name": "console",
+      "kind": "app",
+      "path": "apps/console",
+      "port": 3001,
+      "owns": [
+        "apps/console/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:console",
+      "description": "Console Next.js application."
+    },
+    {
+      "id": "app:login",
+      "name": "login",
+      "kind": "app",
+      "path": "apps/login",
+      "port": 3002,
+      "owns": [
+        "apps/login/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:login",
+      "description": "Login and authentication Next.js application."
+    },
+    {
+      "id": "app:inventory",
+      "name": "inventory",
+      "kind": "app",
+      "path": "apps/inventory",
+      "port": 3003,
+      "owns": [
+        "apps/inventory/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:inventory",
+      "description": "Inventory management Next.js application."
+    },
+    {
+      "id": "app:admin-tools",
+      "name": "admin-tools",
+      "kind": "app",
+      "path": "apps/admin-tools",
+      "port": 3004,
+      "owns": [
+        "apps/admin-tools/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:admin-tools",
+      "description": "Admin tools Next.js application."
+    },
+    {
+      "id": "app:vini",
+      "name": "vini",
+      "kind": "app",
+      "path": "apps/vini",
+      "port": 3005,
+      "owns": [
+        "apps/vini/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:vini",
+      "description": "Vini Next.js application."
+    },
+    {
+      "id": "app:studio",
+      "name": "studio",
+      "kind": "app",
+      "path": "apps/studio",
+      "port": 3006,
+      "owns": [
+        "apps/studio/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:studio",
+      "description": "Studio Next.js application."
+    },
+    {
+      "id": "app:docs",
+      "name": "docs",
+      "kind": "app",
+      "path": "apps/docs",
+      "port": 3007,
+      "owns": [
+        "apps/docs/**"
+      ],
+      "mayImport": [
+        "@repo/ui",
+        "@repo/assets",
+        "@repo/session"
+      ],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "standalone": true,
+      "run": "pnpm run dev:docs",
+      "description": "Documentation Next.js application."
+    },
+    {
+      "id": "pkg:ui",
+      "name": "@repo/ui",
+      "kind": "package",
+      "path": "packages/ui",
+      "owns": [
+        "packages/ui/**"
+      ],
+      "mayImport": [
+        "@repo/assets"
+      ],
+      "mayNotImport": [
+        "apps/*",
+        "@repo/session"
+      ],
+      "affectsAllApps": true,
+      "publicEntry": [
+        "./button",
+        "./card",
+        "./code"
+      ],
+      "description": "Shared React component library. Edits here change EVERY app that imports it."
+    },
+    {
+      "id": "pkg:assets",
+      "name": "@repo/assets",
+      "kind": "package",
+      "path": "packages/assets",
+      "owns": [
+        "packages/assets/**"
+      ],
+      "mayImport": [],
+      "mayNotImport": [
+        "apps/*",
+        "@repo/ui",
+        "@repo/session"
+      ],
+      "affectsAllApps": true,
+      "publicEntry": [
+        "./icons",
+        "./icons/*",
+        "./fonts",
+        "./tokens",
+        "./tokens.css",
+        "./manifest"
+      ],
+      "protectedPaths": [
+        "packages/assets/src/tokens/**"
+      ],
+      "generatedPaths": [
+        "packages/assets/src/icons/**",
+        "packages/assets/src/tokens/tokens.css",
+        "packages/assets/assets.manifest.json"
+      ],
+      "description": "Single authority for all assets (icons, fonts, design tokens). Tokens are GLOBAL: editing them recolors every app."
+    },
+    {
+      "id": "pkg:session",
+      "name": "@repo/session",
+      "kind": "package",
+      "path": "packages/session",
+      "owns": [
+        "packages/session/**"
+      ],
+      "mayImport": [],
+      "mayNotImport": [
+        "apps/*",
+        "@repo/ui",
+        "@repo/assets"
+      ],
+      "affectsAllApps": true,
+      "publicEntry": [
+        "./client",
+        "./server",
+        "./types"
+      ],
+      "protectedPaths": [
+        "packages/session/src/fixtures.ts"
+      ],
+      "description": "Shared login/session contract + provider. Defines the cross-app auth contract; fixtures power single-app standalone dev."
+    },
+    {
+      "id": "pkg:eslint-config",
+      "name": "@repo/eslint-config",
+      "kind": "config",
+      "path": "packages/eslint-config",
+      "owns": [
+        "packages/eslint-config/**"
+      ],
+      "mayImport": [],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "affectsAllApps": true,
+      "description": "Shared ESLint config, including the boundary enforcement rules."
+    },
+    {
+      "id": "pkg:typescript-config",
+      "name": "@repo/typescript-config",
+      "kind": "config",
+      "path": "packages/typescript-config",
+      "owns": [
+        "packages/typescript-config/**"
+      ],
+      "mayImport": [],
+      "mayNotImport": [
+        "apps/*"
+      ],
+      "affectsAllApps": true,
+      "description": "Shared TypeScript configs."
+    },
+    {
+      "id": "root",
+      "name": "root",
+      "kind": "root",
+      "path": ".",
+      "owns": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "turbo.json",
+        "tsconfig*.json",
+        "repo.manifest.json",
+        "repo.manifest.schema.json",
+        "CODEOWNERS",
+        ".env*",
+        ".npmrc",
+        ".gitignore",
+        ".dockerignore",
+        "Dockerfile",
+        "docker-compose.yml",
+        "scripts/**",
+        "turbo/**",
+        ".husky/**",
+        ".github/**"
+      ],
+      "affectsAllApps": true,
+      "description": "Shared infrastructure. Changes here affect the whole repo and the boundary system itself. This is its own scope (scope: root) and must NEVER ride along on an app change. The dependency lockfile is shared by all apps — a dependency bump touches every app's resolved versions."
+    }
+  ]
+}

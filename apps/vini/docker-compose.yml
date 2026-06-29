@@ -1,0 +1,19 @@
+# Deploy only vini (:3005). From repo root:
+#   docker compose -f apps/vini/docker-compose.yml up --build
+
+name: console-vini
+
+services:
+  vini:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: vini
+        APP_PORT: 3005
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

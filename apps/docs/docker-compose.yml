@@ -1,0 +1,19 @@
+# Deploy only docs (:3007). From repo root:
+#   docker compose -f apps/docs/docker-compose.yml up --build
+
+name: console-docs
+
+services:
+  docs:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: docs
+        APP_PORT: 3007
+    ports:
+      - "3007:3007"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

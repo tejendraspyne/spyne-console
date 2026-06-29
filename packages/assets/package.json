@@ -1,0 +1,37 @@
+{
+  "name": "@repo/assets",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./icons": "./src/icons/index.ts",
+    "./icons/*": "./src/icons/*.tsx",
+    "./fonts": "./src/fonts/index.ts",
+    "./tokens": "./src/tokens/tokens.ts",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./manifest": "./assets.manifest.json"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "gen:tokens": "node scripts/gen-tokens.mjs",
+    "gen": "pnpm run gen:icons && pnpm run gen:tokens"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "eslint": "^9.39.1",
+    "next": "16.2.0",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "react": "^19.2.0"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "react": ">=19"
+  }
+}

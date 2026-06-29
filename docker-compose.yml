@@ -1,0 +1,108 @@
+# Deploy all apps. From repo root: docker compose up --build -d
+#
+# Ports: main :3000, console :3001, login :3002, inventory :3003,
+#        admin-tools :3004, vini :3005, studio :3006, docs :3007
+
+name: console
+
+x-app-env: &app-env
+  NODE_ENV: production
+  SESSION_MODE: ${SESSION_MODE:-fixture}
+  SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: main
+        APP_PORT: 3000
+    ports:
+      - "3000:3000"
+    environment:
+      <<: *app-env
+
+  console:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: console
+        APP_PORT: 3001
+    ports:
+      - "3001:3001"
+    environment:
+      <<: *app-env
+
+  login:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: login
+        APP_PORT: 3002
+    ports:
+      - "3002:3002"
+    environment:
+      <<: *app-env
+
+  inventory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: inventory
+        APP_PORT: 3003
+    ports:
+      - "3003:3003"
+    environment:
+      <<: *app-env
+
+  admin-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: admin-tools
+        APP_PORT: 3004
+    ports:
+      - "3004:3004"
+    environment:
+      <<: *app-env
+
+  vini:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: vini
+        APP_PORT: 3005
+    ports:
+      - "3005:3005"
+    environment:
+      <<: *app-env
+
+  studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: studio
+        APP_PORT: 3006
+    ports:
+      - "3006:3006"
+    environment:
+      <<: *app-env
+
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: docs
+        APP_PORT: 3007
+    ports:
+      - "3007:3007"
+    environment:
+      <<: *app-env

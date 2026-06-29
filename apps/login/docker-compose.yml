@@ -1,0 +1,19 @@
+# Deploy only login (:3002). From repo root:
+#   docker compose -f apps/login/docker-compose.yml up --build
+
+name: console-login
+
+services:
+  login:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: login
+        APP_PORT: 3002
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

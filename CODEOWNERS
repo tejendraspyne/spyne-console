@@ -1,0 +1,35 @@
+# Code ownership — mirrors repo.manifest.json `owns` globs.
+# Distinct owners per workspace so a PR touching two apps needs two reviews,
+# reinforcing "one change = one scope" at the review layer.
+#
+# Replace the placeholder @team handles with real GitHub teams/users, then
+# enable this file in your repo settings (GitHub reads .github/CODEOWNERS or
+# /CODEOWNERS) and require code-owner review on protected branches.
+
+# Apps (leaves) — owned by their respective product teams.
+/apps/main/         @main-team
+/apps/console/      @console-team
+/apps/login/        @auth-team
+/apps/inventory/    @inventory-team
+/apps/admin-tools/  @admin-tools-team
+/apps/vini/         @vini-team
+/apps/studio/       @studio-team
+/apps/docs/         @docs-team
+
+# Shared packages — changes here affect every app; owned by the platform team.
+/packages/ui/                 @platform-team
+/packages/assets/             @platform-team @design-team
+/packages/session/            @platform-team @auth-team
+/packages/eslint-config/      @platform-team
+/packages/typescript-config/  @platform-team
+
+# Root infrastructure + the boundary system itself — platform team only.
+/repo.manifest.json           @platform-team
+/repo.manifest.schema.json    @platform-team
+/turbo.json                   @platform-team
+/package.json                 @platform-team
+/pnpm-lock.yaml               @platform-team
+/pnpm-workspace.yaml          @platform-team
+/scripts/                     @platform-team
+/turbo/                       @platform-team
+/CODEOWNERS                   @platform-team

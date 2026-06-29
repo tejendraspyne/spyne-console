@@ -1,0 +1,6 @@
+
+> inventory@0.1.0 check-types /Users/tejendrasingh/Desktop/console 2.0/apps/inventory
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully

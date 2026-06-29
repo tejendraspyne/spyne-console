@@ -1,0 +1,35 @@
+{
+  "generatedBy": "scripts/gen-icons.mjs",
+  "icons": [
+    {
+      "name": "file-text",
+      "component": "FileTextIcon",
+      "import": "@repo/assets/icons"
+    },
+    {
+      "name": "globe",
+      "component": "GlobeIcon",
+      "import": "@repo/assets/icons"
+    },
+    {
+      "name": "next",
+      "component": "NextIcon",
+      "import": "@repo/assets/icons"
+    },
+    {
+      "name": "turborepo",
+      "component": "TurborepoIcon",
+      "import": "@repo/assets/icons"
+    },
+    {
+      "name": "vercel",
+      "component": "VercelIcon",
+      "import": "@repo/assets/icons"
+    },
+    {
+      "name": "window",
+      "component": "WindowIcon",
+      "import": "@repo/assets/icons"
+    }
+  ]
+}

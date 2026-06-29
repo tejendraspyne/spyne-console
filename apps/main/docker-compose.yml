@@ -1,0 +1,21 @@
+# Deploy only main (:3000). From repo root:
+#   docker compose -f apps/main/docker-compose.yml up --build
+# Or from this folder:
+#   docker compose up --build
+
+name: console-main
+
+services:
+  main:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: main
+        APP_PORT: 3000
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

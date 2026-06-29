@@ -1,6 +1,0 @@
-
-> main@0.1.0 check-types /Users/tejendrasingh/Desktop/console 2.0/apps/main
-> next typegen && tsc --noEmit
-
-Generating route types...
-✓ Types generated successfully

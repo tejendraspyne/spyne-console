@@ -1,0 +1,27 @@
+# Keep the Docker build context small and free of host-only / secret files.
+# The Dockerfile runs `turbo prune` on the source, so we only need source +
+# manifests here — never node_modules, build output, or local env files.
+
+**/node_modules
+**/.next
+**/.turbo
+**/out
+**/dist
+
+.git
+.github
+.vscode
+.idea
+
+# local env (never bake secrets into images; compose injects env at runtime)
+.env
+.env.*.local
+
+# logs / OS cruft
+**/*.log
+**/.DS_Store
+
+# docker artifacts themselves
+Dockerfile
+.dockerignore
+docker-compose*.yml

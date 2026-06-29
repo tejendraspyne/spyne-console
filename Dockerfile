@@ -26,7 +26,31 @@ COPY .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
+
+# Gateway routing for the `main` app: Next bakes rewrites() at build time, so
+# the satellite server URLs must be present now (not just at runtime). These are
+# empty for every other app and for independent-container builds of main, which
+# makes main fall through to serving only itself. docker-compose.gateway.yml
+# passes the Docker service URLs here so main proxies to its peers.
+ARG CONSOLE_MICROFRONTEND_SERVER_URL=""
+ARG LOGIN_MICROFRONTEND_SERVER_URL=""
+ARG INVENTORY_MICROFRONTEND_SERVER_URL=""
+ARG ADMIN_TOOLS_MICROFRONTEND_SERVER_URL=""
+ARG VINI_MICROFRONTEND_SERVER_URL=""
+ARG STUDIO_MICROFRONTEND_SERVER_URL=""
+ARG DOCS_MICROFRONTEND_SERVER_URL=""
+ENV CONSOLE_MICROFRONTEND_SERVER_URL=$CONSOLE_MICROFRONTEND_SERVER_URL \
+    LOGIN_MICROFRONTEND_SERVER_URL=$LOGIN_MICROFRONTEND_SERVER_URL \
+    INVENTORY_MICROFRONTEND_SERVER_URL=$INVENTORY_MICROFRONTEND_SERVER_URL \
+    ADMIN_TOOLS_MICROFRONTEND_SERVER_URL=$ADMIN_TOOLS_MICROFRONTEND_SERVER_URL \
+    VINI_MICROFRONTEND_SERVER_URL=$VINI_MICROFRONTEND_SERVER_URL \
+    STUDIO_MICROFRONTEND_SERVER_URL=$STUDIO_MICROFRONTEND_SERVER_URL \
+    DOCS_MICROFRONTEND_SERVER_URL=$DOCS_MICROFRONTEND_SERVER_URL
+
 RUN pnpm turbo run build --filter="${APP_NAME}"
+# Ensure a public/ exists even for apps that ship no static assets,
+# so the runner-stage COPY below always has a source.
+RUN mkdir -p "apps/${APP_NAME}/public"
 
 FROM base AS runner
 ARG APP_NAME

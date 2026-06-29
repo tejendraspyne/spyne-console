@@ -47,6 +47,9 @@
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
+    "docker:gateway:up": "docker compose -f docker-compose.yml -f docker-compose.gateway.yml up --build -d",
+    "docker:gateway:down": "docker compose -f docker-compose.yml -f docker-compose.gateway.yml down",
+    "docker:gateway:logs": "docker compose -f docker-compose.yml -f docker-compose.gateway.yml logs -f main",
 
     "gen:app": "turbo gen new-app",
     "gen:package": "turbo gen new-package",

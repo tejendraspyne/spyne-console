@@ -1,0 +1,34 @@
+# Integrated-gateway overlay — main is the router. Run WITH the base file:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.gateway.yml up --build -d
+#
+# main becomes the single entry point at http://localhost:3000 and proxies
+# /console, /login, ... to each app container via main's own next.config
+# rewrites. Because Next bakes rewrites at build time, the satellite URLs are
+# passed as BUILD ARGS so they are compiled into main's image. The other apps
+# stay independently deployable; only main knows the topology.
+#
+# Switching topology requires a rebuild (the :up scripts pass --build).
+
+name: console
+
+services:
+  main:
+    build:
+      args:
+        # Docker-network service URLs, baked into main's rewrites at build time.
+        CONSOLE_MICROFRONTEND_SERVER_URL: http://console:3001
+        LOGIN_MICROFRONTEND_SERVER_URL: http://login:3002
+        INVENTORY_MICROFRONTEND_SERVER_URL: http://inventory:3003
+        ADMIN_TOOLS_MICROFRONTEND_SERVER_URL: http://admin-tools:3004
+        VINI_MICROFRONTEND_SERVER_URL: http://vini:3005
+        STUDIO_MICROFRONTEND_SERVER_URL: http://studio:3006
+        DOCS_MICROFRONTEND_SERVER_URL: http://docs:3007
+    depends_on:
+      - console
+      - login
+      - inventory
+      - admin-tools
+      - vini
+      - studio
+      - docs

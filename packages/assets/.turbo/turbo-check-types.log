@@ -1,0 +1,4 @@
+
+> @repo/assets@0.0.0 check-types /Users/tejendrasingh/Desktop/console 2.0/packages/assets
+> tsc --noEmit
+

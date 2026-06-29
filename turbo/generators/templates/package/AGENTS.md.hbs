@@ -1,0 +1,17 @@
+# @repo/{{kebabCase name}} — agent guide
+
+**Scope id:** `pkg:{{kebabCase name}}` · **Owns:** `packages/{{kebabCase name}}/**` · **Affects ALL importers.**
+
+TODO: describe what this package is for.
+
+## Public surface (the only legal import)
+
+`@repo/{{kebabCase name}}/index`
+
+Add new entry points to `package.json` `exports` (no `./*` wildcard) and keep
+`publicEntry` in `repo.manifest.json` in sync — `pnpm run boundaries:check`
+verifies it.
+
+## Rules
+
+- This package may not import apps. No deep imports of other packages' internals.

@@ -1,0 +1,19 @@
+# Deploy only admin-tools (:3004). From repo root:
+#   docker compose -f apps/admin-tools/docker-compose.yml up --build
+
+name: console-admin-tools
+
+services:
+  admin-tools:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: admin-tools
+        APP_PORT: 3004
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

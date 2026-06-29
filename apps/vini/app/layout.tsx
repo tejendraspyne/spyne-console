@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { fontVariables } from "@repo/assets/fonts";
+import { SessionProvider } from "@repo/session/client";
+import { getServerSession } from "@repo/session/server";
+import "@repo/assets/tokens.css";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "vini",
+  description: "vini app in the console monorepo.",
+};
+
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const session = await getServerSession();
+
+  return (
+    <html lang="en">
+      <body className={fontVariables}>
+        <SessionProvider initialSession={session}>{children}</SessionProvider>
+      </body>
+    </html>
+  );
+}

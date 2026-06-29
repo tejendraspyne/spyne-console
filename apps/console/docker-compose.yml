@@ -1,0 +1,19 @@
+# Deploy only console (:3001). From repo root:
+#   docker compose -f apps/console/docker-compose.yml up --build
+
+name: console-console
+
+services:
+  console:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: console
+        APP_PORT: 3001
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      SESSION_MODE: ${SESSION_MODE:-fixture}
+      SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}

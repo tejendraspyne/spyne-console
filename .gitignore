@@ -9,6 +9,9 @@ out/
 build/
 next-env.d.ts
 
+# turbo
+.turbo/
+
 # misc
 .DS_Store
 *.pem

@@ -23,5 +23,6 @@
 
 # docker artifacts themselves
 Dockerfile
+**/Dockerfile.*
 .dockerignore
 docker-compose*.yml

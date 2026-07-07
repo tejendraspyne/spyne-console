@@ -1,0 +1,39 @@
+# Staging variant: selective copy + pnpm in base, Next standalone output.
+# Adapted to this repo: node:20-alpine, workspace "studio", port 3006.
+
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+
+FROM base AS builder
+WORKDIR /app
+RUN pnpm add -g turbo@^2
+COPY apps/studio ./apps/studio
+COPY packages ./packages
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+RUN turbo prune studio --docker
+
+FROM base AS installer
+WORKDIR /app
+COPY --from=builder /app/out/json/ .
+RUN pnpm install
+COPY --from=builder /app/out/full/ .
+COPY .env* ./
+
+RUN pnpm turbo run build --filter=studio
+RUN mkdir -p apps/studio/public
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3006
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=installer --chown=nextjs:nodejs /app/apps/studio/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/studio/.next/static ./apps/studio/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/studio/public ./apps/studio/public
+USER nextjs
+EXPOSE 3006
+WORKDIR /app/apps/studio
+CMD ["node", "server.js"]

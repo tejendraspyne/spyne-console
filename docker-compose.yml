@@ -1,5 +1,7 @@
-# Deploy all apps. From repo root: docker compose up --build -d
+# Deploy all apps as independent containers. From repo root:
+#   docker compose up --build -d
 #
+# Each service builds its own apps/<app>/Dockerfile.production (Next standalone).
 # Ports: main :3000, console :3001, login :3002, inventory :3003,
 #        admin-tools :3004, vini :3005, studio :3006, docs :3007
 
@@ -14,10 +16,7 @@ services:
   main:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: main
-        APP_PORT: 3000
+      dockerfile: apps/main/Dockerfile.production
     ports:
       - "3000:3000"
     environment:
@@ -26,10 +25,7 @@ services:
   console:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: console
-        APP_PORT: 3001
+      dockerfile: apps/console/Dockerfile.production
     ports:
       - "3001:3001"
     environment:
@@ -38,10 +34,7 @@ services:
   login:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: login
-        APP_PORT: 3002
+      dockerfile: apps/login/Dockerfile.production
     ports:
       - "3002:3002"
     environment:
@@ -50,10 +43,7 @@ services:
   inventory:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: inventory
-        APP_PORT: 3003
+      dockerfile: apps/inventory/Dockerfile.production
     ports:
       - "3003:3003"
     environment:
@@ -62,10 +52,7 @@ services:
   admin-tools:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: admin-tools
-        APP_PORT: 3004
+      dockerfile: apps/admin-tools/Dockerfile.production
     ports:
       - "3004:3004"
     environment:
@@ -74,10 +61,7 @@ services:
   vini:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: vini
-        APP_PORT: 3005
+      dockerfile: apps/vini/Dockerfile.production
     ports:
       - "3005:3005"
     environment:
@@ -86,10 +70,7 @@ services:
   studio:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: studio
-        APP_PORT: 3006
+      dockerfile: apps/studio/Dockerfile.production
     ports:
       - "3006:3006"
     environment:
@@ -98,10 +79,7 @@ services:
   docs:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        APP_NAME: docs
-        APP_PORT: 3007
+      dockerfile: apps/docs/Dockerfile.production
     ports:
       - "3007:3007"
     environment:

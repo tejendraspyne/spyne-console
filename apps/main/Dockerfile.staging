@@ -1,0 +1,56 @@
+# Staging variant: selective copy + pnpm in base, Next standalone output.
+# Adapted to this repo: node:20-alpine, workspace "main", port 3000.
+
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+
+FROM base AS builder
+WORKDIR /app
+RUN pnpm add -g turbo@^2
+COPY apps/main ./apps/main
+COPY packages ./packages
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+RUN turbo prune main --docker
+
+FROM base AS installer
+WORKDIR /app
+COPY --from=builder /app/out/json/ .
+RUN pnpm install
+COPY --from=builder /app/out/full/ .
+COPY .env* ./
+
+# Gateway routing for `main`: Next bakes rewrites() at build time, so satellite
+# server URLs must be present now. Empty by default (main then serves only
+# itself); compose passes the Docker service URLs for gateway/per-domain builds.
+ARG CONSOLE_MICROFRONTEND_SERVER_URL=""
+ARG LOGIN_MICROFRONTEND_SERVER_URL=""
+ARG INVENTORY_MICROFRONTEND_SERVER_URL=""
+ARG ADMIN_TOOLS_MICROFRONTEND_SERVER_URL=""
+ARG VINI_MICROFRONTEND_SERVER_URL=""
+ARG STUDIO_MICROFRONTEND_SERVER_URL=""
+ARG DOCS_MICROFRONTEND_SERVER_URL=""
+ENV CONSOLE_MICROFRONTEND_SERVER_URL=$CONSOLE_MICROFRONTEND_SERVER_URL \
+    LOGIN_MICROFRONTEND_SERVER_URL=$LOGIN_MICROFRONTEND_SERVER_URL \
+    INVENTORY_MICROFRONTEND_SERVER_URL=$INVENTORY_MICROFRONTEND_SERVER_URL \
+    ADMIN_TOOLS_MICROFRONTEND_SERVER_URL=$ADMIN_TOOLS_MICROFRONTEND_SERVER_URL \
+    VINI_MICROFRONTEND_SERVER_URL=$VINI_MICROFRONTEND_SERVER_URL \
+    STUDIO_MICROFRONTEND_SERVER_URL=$STUDIO_MICROFRONTEND_SERVER_URL \
+    DOCS_MICROFRONTEND_SERVER_URL=$DOCS_MICROFRONTEND_SERVER_URL
+RUN pnpm turbo run build --filter=main
+RUN mkdir -p apps/main/public
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=installer --chown=nextjs:nodejs /app/apps/main/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/main/.next/static ./apps/main/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/main/public ./apps/main/public
+USER nextjs
+EXPOSE 3000
+WORKDIR /app/apps/main
+CMD ["node", "server.js"]

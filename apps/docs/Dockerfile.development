@@ -1,0 +1,43 @@
+# Per-app build (development/production) with Next standalone output.
+# Adapted from spyne-console-microfrontends: node:20-alpine, workspace "docs",
+# port 3007. Runtime uses the standalone server (small image, fast boot).
+
+FROM node:20-alpine AS base
+
+FROM base AS builder
+WORKDIR /app
+RUN npm install -g pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+RUN pnpm add -g turbo@^2
+COPY . .
+RUN turbo prune docs --docker
+
+FROM base AS installer
+WORKDIR /app
+RUN npm install -g pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install
+COPY --from=builder /app/out/full/ .
+COPY .env* ./
+
+RUN pnpm turbo run build --filter=docs
+# public/ may not exist; ensure the runner COPY has a source
+RUN mkdir -p apps/docs/public
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3007
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/.next/static ./apps/docs/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/public ./apps/docs/public
+USER nextjs
+EXPOSE 3007
+WORKDIR /app/apps/docs
+CMD ["node", "server.js"]

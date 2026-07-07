@@ -1,0 +1,101 @@
+# Multi-domain topology — shared satellite services + one main image per domain.
+#
+#   docker compose -f docker-compose.domains.yml up --build -d
+#
+# Satellites (login, vini, studio, admin-tools, inventory) are ONE container
+# each, shared by every domain — update login once and all domains get it.
+# Each main is a SEPARATE image built from apps/main/Dockerfile.production with
+# only its domain's satellite URLs baked in (build args), so it routes only
+# those apps. Locally each main is on its own host port to stand in for a
+# domain; in prod DevOps maps the domain -> the main.
+#
+#   console.spyne.ai   -> main-console   (login + vini + studio)   :3000
+#   admin.spyne.ai     -> main-admin     (login + admin-tools)     :3010
+#   inventory.spyne.ai -> main-inventory (login + inventory)       :3020
+
+name: console-domains
+
+x-app-env: &app-env
+  NODE_ENV: production
+  SESSION_MODE: ${SESSION_MODE:-fixture}
+  SESSION_FIXTURE_USER: ${SESSION_FIXTURE_USER:-admin}
+
+services:
+  # ---------- shared satellite services (one container each) ----------
+  login:
+    build:
+      context: .
+      dockerfile: apps/login/Dockerfile.production
+    image: console-login
+    ports: ["3002:3002"]
+    environment: { <<: *app-env }
+
+  vini:
+    build:
+      context: .
+      dockerfile: apps/vini/Dockerfile.production
+    image: console-vini
+    ports: ["3005:3005"]
+    environment: { <<: *app-env }
+
+  studio:
+    build:
+      context: .
+      dockerfile: apps/studio/Dockerfile.production
+    image: console-studio
+    ports: ["3006:3006"]
+    environment: { <<: *app-env }
+
+  admin-tools:
+    build:
+      context: .
+      dockerfile: apps/admin-tools/Dockerfile.production
+    image: console-admin-tools
+    ports: ["3004:3004"]
+    environment: { <<: *app-env }
+
+  inventory:
+    build:
+      context: .
+      dockerfile: apps/inventory/Dockerfile.production
+    image: console-inventory
+    ports: ["3003:3003"]
+    environment: { <<: *app-env }
+
+  # ---------- per-domain main images (subset baked in at build) ----------
+  main-console: # console.spyne.ai -> login + vini + studio
+    build:
+      context: .
+      dockerfile: apps/main/Dockerfile.production
+      args:
+        LOGIN_MICROFRONTEND_SERVER_URL: http://login:3002
+        VINI_MICROFRONTEND_SERVER_URL: http://vini:3005
+        STUDIO_MICROFRONTEND_SERVER_URL: http://studio:3006
+    image: console-main-console
+    ports: ["3000:3000"]
+    environment: { <<: *app-env }
+    depends_on: [login, vini, studio]
+
+  main-admin: # admin.spyne.ai -> login + admin-tools
+    build:
+      context: .
+      dockerfile: apps/main/Dockerfile.production
+      args:
+        LOGIN_MICROFRONTEND_SERVER_URL: http://login:3002
+        ADMIN_TOOLS_MICROFRONTEND_SERVER_URL: http://admin-tools:3004
+    image: console-main-admin
+    ports: ["3010:3000"]
+    environment: { <<: *app-env }
+    depends_on: [login, admin-tools]
+
+  main-inventory: # inventory.spyne.ai -> login + inventory
+    build:
+      context: .
+      dockerfile: apps/main/Dockerfile.production
+      args:
+        LOGIN_MICROFRONTEND_SERVER_URL: http://login:3002
+        INVENTORY_MICROFRONTEND_SERVER_URL: http://inventory:3003
+    image: console-main-inventory
+    ports: ["3020:3000"]
+    environment: { <<: *app-env }
+    depends_on: [login, inventory]

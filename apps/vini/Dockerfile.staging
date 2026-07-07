@@ -1,0 +1,39 @@
+# Staging variant: selective copy + pnpm in base, Next standalone output.
+# Adapted to this repo: node:20-alpine, workspace "vini", port 3005.
+
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+
+FROM base AS builder
+WORKDIR /app
+RUN pnpm add -g turbo@^2
+COPY apps/vini ./apps/vini
+COPY packages ./packages
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+RUN turbo prune vini --docker
+
+FROM base AS installer
+WORKDIR /app
+COPY --from=builder /app/out/json/ .
+RUN pnpm install
+COPY --from=builder /app/out/full/ .
+COPY .env* ./
+
+RUN pnpm turbo run build --filter=vini
+RUN mkdir -p apps/vini/public
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3005
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=installer --chown=nextjs:nodejs /app/apps/vini/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/vini/.next/static ./apps/vini/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/vini/public ./apps/vini/public
+USER nextjs
+EXPOSE 3005
+WORKDIR /app/apps/vini
+CMD ["node", "server.js"]

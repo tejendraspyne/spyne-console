@@ -15,12 +15,14 @@ phases:
       - REPOSITORY_URI=$(aws ecr describe-repositories --repository-names $IMAGE_REPO_NAME --query 'repositories[0].repositoryUri' --output text)
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
+      - test -n "$DOCKERFILE_PATH" || (echo "DOCKERFILE_PATH env var is not set on this CodeBuild project" && exit 1)
+      - test -f "$DOCKERFILE_PATH" || (echo "No Dockerfile found at $DOCKERFILE_PATH" && exit 1)
 
   build:
     commands:
       - echo Build started on `date`
-      - echo Building the Docker image for vini...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f apps/vini/Dockerfile.staging .
+      - echo Building the Docker image using $DOCKERFILE_PATH...
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f $DOCKERFILE_PATH .
       - echo Tagging the Docker image as latest...
       - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
       - echo Build completed on `date`
